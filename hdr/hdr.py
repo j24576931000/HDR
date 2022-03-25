@@ -32,11 +32,7 @@ def hdr(img_List):
     matrixX_r=g_function(sample_num,img_List,r_list)
     matrixX_g=g_function(sample_num,img_List,g_list)
     matrixX_b=g_function(sample_num,img_List,b_list)
-    ss = np.array([1/4,1/8,1/16,1/32,1/64,1/128,1/256,1/512])
-    total_weight=np.zeros((img_List[0].shape[0],img_List[0].shape[1],img_List[0].shape[2]))
-    weight=np.zeros((img_List[0].shape[0],img_List[0].shape[1],img_List[0].shape[2]))
-    irr= np.zeros((img_List[0].shape[0],img_List[0].shape[1],img_List[0].shape[2]))
-    irr=irr.astype(np.float32)
+    
 
     
     # for i in range (w):
@@ -61,7 +57,77 @@ def hdr(img_List):
     #     print(total_weight)
     #     irr[i][j][2]=irr[i][j][2]/total_weight
     #     total_weight=0
+  
+    irr_result=irradiance(img_List,matrixX_r,matrixX_g,matrixX_b)
+    
+    return irr_result
 
+
+def g_function(sample_num,img_List,r_list):
+
+
+    row = sample_num * len(img_List) + 1 + 254
+    column = 256+ sample_num
+
+    matrixA=sparse.csr_matrix((row,column)).toarray()
+    matrixB=sparse.csr_matrix((row,1)).toarray()
+    #print(r_list)
+    for i in range(1,255):
+        j=i
+        if i<=127:
+            matrixA[len(r_list)+i,j-1]=1*(i-0)
+            matrixA[len(r_list)+i,j]=-2*(i-0)
+            matrixA[len(r_list)+i,j+1]=1*(i-0) 
+        else:
+            matrixA[len(r_list)+i,j-1]=1*(255-i)
+            matrixA[len(r_list)+i,j]=-2*(255-i)
+            matrixA[len(r_list)+i,j+1]=1*(255-i)
+    w_list=[]
+    matrixA[len(r_list),127]=1
+    for i in range(0,len(r_list)):
+        j=r_list[i]   
+        if j<=127:
+            matrixA[i,j]=1*j
+            w_list.append(j)
+        else:
+            matrixA[i,j]=1*(255-j)
+            w_list.append(255-j)
+
+
+    k=0
+    for i in range(0,sample_num):      
+        for j in range(0,len(img_List)): 
+            matrixA[i*len(img_List)+j,256+k]=-1*w_list[i*len(img_List)+j]
+            
+        k+=1
+        
+    
+
+    ss = np.array([1/2,1/4,1/8,1/16,1/32,1/64,1/128,1/256,1/512,1/1024,1/2048])
+    
+    for i in range(0,sample_num):
+        for j in range(len(img_List)):
+            matrixB[i*len(img_List)+j] = np.log(ss[j])*w_list[i*len(img_List)+j]
+    #print(matrixB)
+    matrixX=np.linalg.lstsq(matrixA, matrixB , rcond=None)[0][:256]
+    #print(matrixA)
+    # print(matrixX)
+
+
+    # fig=plt.figure()
+    # ax=fig.add_subplot(111)
+    # ax.plot(matrixX,'g')
+    
+    # plt.show()
+
+    return matrixX
+
+def irradiance(img_List,matrixX_r,matrixX_g,matrixX_b):
+    ss = np.array([1/2,1/4,1/8,1/16,1/32,1/64,1/128,1/256,1/512,1/1024,1/2048])
+    total_weight=np.zeros((img_List[0].shape[0],img_List[0].shape[1],img_List[0].shape[2]))
+    weight=np.zeros((img_List[0].shape[0],img_List[0].shape[1],img_List[0].shape[2]))
+    irr= np.zeros((img_List[0].shape[0],img_List[0].shape[1],img_List[0].shape[2]))
+    irr=irr.astype(np.float32)
     
     for k in range (len(img_List)):
         weight[:,:,2]=np.where((img_List[k])[:,:,2]<=127,(img_List[k][:,:,2]),(255-img_List[k][:,:,2]))        
@@ -85,97 +151,44 @@ def hdr(img_List):
     irr[:,:,1]=irr[:,:,1]/total_weight[:,:,1]
     irr[:,:,2]=irr[:,:,2]/total_weight[:,:,2]
 
-    
+    irr=np.nan_to_num(irr)
     irr=np.exp(irr)
+
     print(np.max(irr))
     #print(irr)
     np.save("test.npy",irr)
     cv2.imwrite("test.jpg",irr)
-    return 0
-
-
-def g_function(sample_num,img_List,r_list):
-
-
-    row = sample_num * len(img_List) + 1 + 254
-    column = 256+ sample_num
-
-    matrixA=sparse.csr_matrix((row,column)).toarray()
-    matrixB=sparse.csr_matrix((row,1)).toarray()
-    #print(r_list)
-    for i in range(1,255):
-        j=i
-        if i<=127:
-            matrixA[len(r_list)+i,j-1]=1*(i-0)
-            matrixA[len(r_list)+i,j]=-2*(i-0)
-            matrixA[len(r_list)+i,j+1]=1*(i-0) 
-        else:
-            matrixA[len(r_list)+i,j-1]=1*(255-i)
-            matrixA[len(r_list)+i,j]=-2*(255-i)
-            matrixA[len(r_list)+i,j+1]=1*(255-i)
-    k=0
-    for i in range(0,sample_num):      
-        for j in range(0,len(img_List)): 
-            if matrixA[i*len(img_List)+j,256+k]!=0:
-                print("error")
-            else:
-                matrixA[i*len(img_List)+j,256+k]=-1
-            # print('i=',i*50+j)
-            # print('j=',256+k)
-        k+=1
-        # print(r_list[i])
-        # print('i=',i)
-        # print('j=',j)
-    matrixA[len(r_list),127]=1
-    for i in range(0,len(r_list)):
-        j=r_list[i]   
-        if matrixA[i,j]!=0:
-            print("error")
-        else:
-            matrixA[i,j]=1
-
-    ss = np.array([1/4,1/8,1/16,1/32,1/64,1/128,1/256,1/512])
     
-    for i in range(0,sample_num):
-        for j in range(len(img_List)):
-            matrixB[i*len(img_List)+j] = ss[j]
-    print(matrixB)
-    matrixX=np.linalg.lstsq(matrixA, matrixB , rcond=None)[0][:256]
-    # print(matrixA)
-    # print(matrixX)
+    return irr
 
 
-    fig=plt.figure()
-    ax=fig.add_subplot(111)
-    ax.plot(matrixX,'g')
-    
-    plt.show()
+# if __name__=='__main__':
+#     List=[]
+#     img=cv2.imread('image_alignment/result/My_Image1.jpg')
+#     List.append(img)
+#     img2=cv2.imread('image_alignment/result/My_Image2.jpg')
+#     List.append(img2)
+#     img3=cv2.imread('image_alignment/result/My_Image3.jpg')
+#     List.append(img3)
+#     img4=cv2.imread('image_alignment/result/My_Image4.jpg')
+#     List.append(img4)
+#     img5=cv2.imread('image_alignment/result/My_Image5.jpg')
+#     List.append(img5)
+#     img6=cv2.imread('image_alignment/result/My_Image6.jpg')
+#     List.append(img6)
+#     img7=cv2.imread('image_alignment/result/My_Image7.jpg')
+#     List.append(img7)
+#     img8=cv2.imread('image_alignment/result/My_Image8.jpg')
+#     List.append(img8)
+#     img9=cv2.imread('image_alignment/result/My_Image9.jpg')
+#     List.append(img9)
+#     img10=cv2.imread('image_alignment/result/My_Image10.jpg')
+#     List.append(img10)
+#     img11=cv2.imread('image_alignment/result/My_Image11.jpg')
+#     List.append(img11)
+#     print(List)
 
-    return matrixX
-
-
-
-
-if __name__=='__main__':
-    List=[]
-    img=cv2.imread('image_alignment/result/My_Image1.jpg')
-    List.append(img)
-    img2=cv2.imread('image_alignment/result/My_Image2.jpg')
-    List.append(img2)
-    img3=cv2.imread('image_alignment/result/My_Image3.jpg')
-    List.append(img3)
-    img4=cv2.imread('image_alignment/result/My_Image4.jpg')
-    List.append(img4)
-    img5=cv2.imread('image_alignment/result/My_Image5.jpg')
-    List.append(img5)
-    img6=cv2.imread('image_alignment/result/My_Image6.jpg')
-    List.append(img6)
-    img7=cv2.imread('image_alignment/result/My_Image7.jpg')
-    List.append(img7)
-    img8=cv2.imread('image_alignment/result/My_Image8.jpg')
-    List.append(img8)
-
-    hdr(List)
+#     hdr(List)
 
 
 
