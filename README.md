@@ -1,6 +1,6 @@
-**Digital Vision Project #1  High Dynamic Range Imaging** 
+# **Digital Vision Project #1  High Dynamic Range Imaging** 
 
-Program Usage**:**
+## **Program Usage**
 
 cd code
 python main.py 
@@ -13,11 +13,11 @@ main執行時會read data folder裡全部的image
 預設會使用data1
 
 
-拍照設備**:** 
+## **拍照設備** 
 
 **Samsung Galaxy Note 20 Ultra** 
 
-開發環境**:**
+## **開發環境**
 
 **Python 3.8.12** 
 
@@ -28,7 +28,7 @@ main執行時會read data folder裡全部的image
 3. **Numpy** 
 4. **Matplotlib** 
 
-實作內容** 
+## **實作內容** 
 
 1. **MTB alignment**   根據上課所說實作  MTB  ， 
 
@@ -100,7 +100,7 @@ Data2 Response curve
 ![](picture/Aspose.Words.b1c388c7-eeac-4bea-aeb7-17e555efbaff.030.jpeg)
 
 
-**tone mapping result :**  
+***tone mapping result :***  
 
 Data1 
 
