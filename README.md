@@ -70,7 +70,7 @@ main執行時會read data folder裡全部的image
 
 Data1 
 
-![](picture/Aspose.Words.b1c388c7-eeac-4bea-aeb7-17e555efbaff.003.png) ![](picture/Aspose.Words.b1c388c7-eeac-4bea-aeb7-17e555efbaff.004.png) ![](data/data_img/20220325_184007.jpg) ![](picture/Aspose.Words.b1c388c7-eeac-4bea-aeb7-17e555efbaff.006.png)
+![](picture/Aspose.Words.b1c388c7-eeac-4bea-aeb7-17e555efbaff.003.png) ![](picture/Aspose.Words.b1c388c7-eeac-4bea-aeb7-17e555efbaff.004.png) ![](picture/Aspose.Words.b1c388c7-eeac-4bea-aeb7-17e555efbaff.005.png) ![](picture/Aspose.Words.b1c388c7-eeac-4bea-aeb7-17e555efbaff.006.png)
 
 ![](picture/Aspose.Words.b1c388c7-eeac-4bea-aeb7-17e555efbaff.007.png) ![](picture/Aspose.Words.b1c388c7-eeac-4bea-aeb7-17e555efbaff.008.png) ![](picture/Aspose.Words.b1c388c7-eeac-4bea-aeb7-17e555efbaff.009.png) ![](picture/Aspose.Words.b1c388c7-eeac-4bea-aeb7-17e555efbaff.010.png)
 
