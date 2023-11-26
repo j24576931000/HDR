@@ -60,7 +60,7 @@ main執行時會read data folder裡全部的image
 
 首先拿出得到圖片的 **intensity** 
 
-接著在 **log domain** 上用 **bilateralFilter** 取得 **low\_pass** 的圖,將 log(intensity)-log(low\_pass)取 得 **log(high\_pass)**的部分,把 **low\_pass** 的部分壓縮後**+**回 **high\_pass** 的部分並還原回一般的 **domain** 
+接著在 **log domain** 上用 **bilateralFilter** 取得 **low\_pass** 的圖,將 log(intensity)-log(low\_pass)取 得 log(high\_pass)的部分,把 low\_pass 的部分壓縮後+回 high\_pass 的部分並還原回一般的 domain 
 
 再來將 HDR 的 RGB 值分別除以 intensity 再乘上上一步還原回一般 domain 的結果分別得到 LDR 的 RGB 
 
